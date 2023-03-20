@@ -1,4 +1,4 @@
-import { Composible, Matchable, Retriable, Runable } from "./operations/operations";
+import { Composible, Runable } from "./operations/operations";
 import { Retry } from "./operations/retry";
 import { TimeTracker } from "./operations/time-tracker";
 import { WrappedFunction } from "./operations/wrapped-function";
