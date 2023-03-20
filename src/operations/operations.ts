@@ -1,7 +1,8 @@
-import { Matchers, Result } from "../types";
+import { Delegate, MapDelegate, Matchers, Result } from "../types";
 
 export interface Matchable<T> {
     match<R>(matchers: Matchers<T, Error, R>): R;
+    expect<R>(error: MapDelegate<Error, R>): T;
 }
 
 export interface Runable<T> {

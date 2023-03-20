@@ -2,7 +2,7 @@ import { Composible, Matchable, Retriable, Runable } from "./operations/operatio
 import { Retry } from "./operations/retry";
 import { TimeTracker } from "./operations/time-tracker";
 import { WrappedFunction } from "./operations/wrapped-function";
-import { Delegate, Matchers, Result } from "./types";
+import { Delegate, MapDelegate, Matchers, Result } from "./types";
 
 export class Compositor<T> implements Composible<T> {
     constructor(private readonly delegate: Runable<T>) { }
@@ -28,13 +28,13 @@ export class Compositor<T> implements Composible<T> {
         return result.ok === true ? matchers.ok(result.value) : matchers.err(result.error);
     }
 
-    public expect<R>(error: Delegate<R>): T {
+    public expect<R>(error: MapDelegate<Error, R>): T {
         const result = this.run();
 
         if (result.ok) {
             return result.value;
         }
 
-        throw error();
+        throw error(result.error);
     }
 }

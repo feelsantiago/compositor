@@ -13,3 +13,4 @@ export interface OutputTimeStream {
 }
 
 export type Delegate<TResult> = () => TResult;
+export type MapDelegate<TParam, TResult> = (param: TParam) => TResult; 

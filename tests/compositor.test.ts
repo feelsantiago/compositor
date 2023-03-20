@@ -45,6 +45,17 @@ describe('Compositor', () => {
             expect(result).toBeDefined();
             expect(result).toEqual('success');
         });
+
+        it('Should rethrow error', () => {
+            const operation = jest.fn().mockImplementation(() => {
+                throw new Error('Mock Error');
+            });
+
+            const compositor = Compositor.do(operation);
+            const mock = () => compositor.expect((err) => err);
+
+            expect(mock).toThrowError('Mock Error');
+        });
     });
 });
 
