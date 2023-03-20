@@ -10,11 +10,11 @@ export interface Runable<T> {
 }
 
 export interface TimeTrackeable<T> extends Retriable<T>, Matchable<T> {
-    time(key: string): Retriable<T>;
+    time(key: string): Composible<T>;
 }
 
 export interface Retriable<T> extends Matchable<T> {
-    retry(times: number): Matchable<T>;
+    retry(times: number): Composible<T>;
 }
 
 export interface Composible<T> extends Runable<T>, Matchable<T>, TimeTrackeable<T>, Retriable<T> {

@@ -15,11 +15,11 @@ export class Compositor<T> implements Composible<T> {
         return this.delegate.run();
     }
 
-    public time(key: string): Retriable<T> {
+    public time(key: string): Compositor<T> {
         return new Compositor(new TimeTracker(key, this.delegate));
     }
 
-    public retry(times: number): Matchable<T> {
+    public retry(times: number): Compositor<T> {
         return new Compositor(new Retry(times, this.delegate));
     }
 
