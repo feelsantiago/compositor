@@ -8,11 +8,11 @@ export interface Runable<T> {
     run(): Result<T>;
 }
 
-export interface TimeTrackeable<T> {
-    time(key: string): Matchable<T>;
+export interface TimeTrackeable<T> extends Retriable<T>, Matchable<T> {
+    time(key: string): Retriable<T>;
 }
 
-export interface Retriable<T> {
+export interface Retriable<T> extends Matchable<T> {
     retry(times: number): Matchable<T>;
 }
 

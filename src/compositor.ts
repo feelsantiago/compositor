@@ -1,8 +1,8 @@
-import { Composible, Runable } from "./operations/operations";
+import { Composible, Matchable, Retriable, Runable } from "./operations/operations";
 import { Retry } from "./operations/retry";
 import { TimeTracker } from "./operations/time-tracker";
 import { WrappedFunction } from "./operations/wrapped-function";
-import { Delegate, Matchers, OutputTimeStream, Result } from "./types";
+import { Delegate, Matchers, Result } from "./types";
 
 export class Compositor<T> implements Composible<T> {
     constructor(private readonly delegate: Runable<T>) { }
@@ -15,11 +15,11 @@ export class Compositor<T> implements Composible<T> {
         return this.delegate.run();
     }
 
-    public time(key: string): Composible<T> {
+    public time(key: string): Retriable<T> {
         return new Compositor(new TimeTracker(key, this.delegate));
     }
 
-    public retry(times: number): Composible<T> {
+    public retry(times: number): Matchable<T> {
         return new Compositor(new Retry(times, this.delegate));
     }
 
