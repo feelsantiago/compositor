@@ -1,5 +1,4 @@
-import { Compositor, Retry, TimeTracker, WrappedFunction } from '../src/compositor';
-import { OutputTimeStream } from '../src/types';
+import { Compositor } from '../src/compositor';
 
 describe('Compositor', () => {
 
@@ -24,43 +23,4 @@ describe('Compositor', () => {
     });
 });
 
-describe('TimeTracker', () => {
-    it('Should track time between runs', () => {
 
-        const mockTime: OutputTimeStream = {
-            time: jest.fn(),
-            timeEnd: jest.fn(),
-        };
-
-        const timeTracker = new TimeTracker('key', new WrappedFunction(() => 'Test'), mockTime);
-        timeTracker.run();
-
-        expect(mockTime.time).toHaveBeenCalledWith('key');
-        expect(mockTime.timeEnd).toHaveBeenCalledWith('key');
-    });
-});
-
-describe('Retry', () => {
-    it('Should retry if operation fail', () => {
-        const operation = jest.fn().mockImplementation(() => {
-            throw new Error('Mock Error');
-        });
-
-        const retry = new Retry(3, new WrappedFunction(operation));
-        const result = retry.run();
-
-        expect(operation).toHaveBeenCalledTimes(3);
-        expect(result.ok).toBeFalsy();
-        expect((result as any).error.toString()).toEqual(new Error('Mock Error').toString());
-    });
-
-    it('Should stop retry when success', () => {
-        const operation = jest.fn();
-
-        const retry = new Retry(3, new WrappedFunction(operation));
-        const result = retry.run();
-
-        expect(operation).toHaveBeenCalledTimes(1);
-        expect(result.ok).toBeTruthy();
-    })
-});

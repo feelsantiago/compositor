@@ -1,4 +1,4 @@
-import { Delegate, Result } from "./types";
+import { Delegate, Result } from "../types";
 
 export class Encase<T> {
     constructor(private readonly delegate: Delegate<T>) { }

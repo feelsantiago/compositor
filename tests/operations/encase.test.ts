@@ -1,4 +1,4 @@
-import { Encase } from "../src/encase";
+import { Encase } from "../../src/operations/encase";
 
 describe('Encase', () => {
     it('Should wrap a function call in a success result object', () => {
