@@ -27,4 +27,14 @@ export class Compositor<T> implements Composible<T> {
         const result = this.run();
         return result.ok === true ? matchers.ok(result.value) : matchers.err(result.error);
     }
+
+    public expect<R>(error: Delegate<R>): T {
+        const result = this.run();
+
+        if (result.ok) {
+            return result.value;
+        }
+
+        throw error();
+    }
 }
