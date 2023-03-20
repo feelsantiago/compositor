@@ -1,0 +1,29 @@
+{
+    "name": "compositor",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "build": "tsc",
+        "start": "ts-node src/main.ts",
+        "test": "jest"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "@babel/core": "^7.21.3",
+        "@babel/preset-env": "^7.20.2",
+        "@tsconfig/node16": "^1.0.3",
+        "@types/jest": "^29.5.0",
+        "@types/node": "^18.15.3",
+        "add": "^2.0.6",
+        "babel-jest": "^29.5.0",
+        "jest": "^29.5.0",
+        "ou": "^0.0.2",
+        "ts-jest": "^29.0.5",
+        "ts-node": "^10.9.1",
+        "typescript": "^5.0.2",
+        "yarn": "^1.22.19"
+    }
+}
