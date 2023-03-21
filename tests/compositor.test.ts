@@ -119,4 +119,88 @@ describe('Compositor all', () => {
     });
 });
 
+describe('Compositor each', () => {
+    describe('Match', () => {
+        it('Should match success', () => {
+            const func = jest.fn().mockReturnValue(1);
+            const compositor = Compositor.each([1, 2], (item) => func());
+
+            const result = compositor.match({
+                ok: (values) => values,
+                err: (err) => {
+                    fail();
+                }
+            });
+
+            expect(func).toHaveBeenCalledTimes(2);
+            expect(result.length).toBe(2);
+        });
+
+        it('Should match error and result be empty', () => {
+            const func = jest.fn().mockImplementation(() => {
+                throw new Error('fail');
+            });
+            const compositor = Compositor.each([1, 2], (item) => func());
+
+            const result = compositor.match({
+                ok: (values) => {
+                    fail();
+                    return [];
+                },
+                err: (err) => {
+                    expect(err.length).toBe(2);
+                }
+            });
+
+            expect(result.length).toBe(0);
+        });
+
+        it('Should match success and fails', () => {
+            const func = jest.fn().mockImplementation((i) => {
+                if (i === 2) {
+                    throw new Error('Fail');
+                }
+
+                return i;
+            });
+            const compositor = Compositor.each([1, 2, 3], (item) => func(item));
+
+            const result = compositor.match({
+                ok: (items) => items,
+                err: (errors) => {
+                    expect(errors.length).toBe(1);
+                    expect(errors[0].toString()).toEqual(new Error('Fail').toString());
+                }
+            });
+
+            expect(result.length).toBe(2);
+            expect(func).toHaveBeenCalledWith(3);
+        });
+    });
+
+    describe('Expect', () => {
+        it('Should unsafe extract value if all success', () => {
+            const items = [1, 2];
+            const compositor = Compositor.each(items, (item) => item);
+
+            const results = compositor.expect((err) => new Error('fail'));
+            expect(results.length).toBe(2);
+        });
+
+        it('Should throw error if one fail', () => {
+            const items = [1, 2, 3];
+            const compositor = Compositor.each(items, (item) => {
+                if (item === 2) {
+                    throw new Error('Second error');
+                }
+
+                return item;
+            });
+
+            const mock = () => compositor.expect((err) => new Error('Fail'));
+            expect(mock).toThrowError('Fail');
+        });
+    });
+});
+
 

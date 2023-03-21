@@ -26,13 +26,13 @@ export class CompositorEach<T> implements ComposibleEach<T> {
         const results = this.run();
         const [success, fails] = new Results(results).group();
 
-        const successResult = success.length ? matchers.ok(success) : undefined;
+        const successResult = success.length ? matchers.ok(success) : [];
 
         if (fails.length) {
             matchers.err(fails);
         }
 
-        return successResult || [];
+        return successResult;
     }
 
     expect<R>(error: MapDelegate<Error[], R>): T[] {
