@@ -7,6 +7,11 @@ export interface Matchers<T, E extends Error, R> {
     err(error: E): R;
 }
 
+export interface MatchersMany<T, E extends Error, R> {
+    ok(value: T[]): R[];
+    err(error: E[]): void;
+}
+
 export interface OutputTimeStream {
     time(label?: string | undefined): void;
     timeEnd(label?: string | undefined): void;

@@ -2,7 +2,8 @@ import { Composible, ComposibleEach, Runable, } from "./operations/operations";
 import { Retry } from "./operations/retry";
 import { TimeTracker } from "./operations/time-tracker";
 import { WrappedFunction } from "./operations/wrapped-function";
-import { Delegate, MapDelegate, Matchers, Result } from "./types";
+import { Delegate, MapDelegate, Matchers, MatchersMany, Result } from "./types";
+import { Results } from "./utils/results";
 
 export class CompositorEach<T extends T[]> implements ComposibleEach<T> {
     constructor(private readonly delegates: Runable<T>[]) { }
@@ -21,13 +22,28 @@ export class CompositorEach<T extends T[]> implements ComposibleEach<T> {
         return new CompositorEach(delegates);
     }
 
-    match<R>(matchers: Matchers<T, Error, R[]>): R[] {
+    match<R>(matchers: MatchersMany<T, Error, R>): R[] {
         const results = this.run();
-        return [];
+        const [success, fails] = new Results(results).group();
+
+        const successResult = success.length ? matchers.ok(success) : undefined;
+
+        if (fails.length) {
+            matchers.err(fails);
+        }
+
+        return successResult || [];
     }
 
-    expect<R>(error: MapDelegate<Error, R[]>): T[] {
-        throw new Error("Method not implemented.");
+    expect<R>(error: MapDelegate<Error[], R>): T[] {
+        const results = this.run();
+        const [success, fails] = new Results(results).group();
+
+        if (fails.length) {
+            throw error(fails);
+        }
+
+        return success;
     }
 }
 

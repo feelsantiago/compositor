@@ -1,4 +1,4 @@
-import { MapDelegate, Matchers, Result } from "../types";
+import { MapDelegate, Matchers, MatchersMany, Result } from "../types";
 
 export interface Matchable<T> {
     match<R>(matchers: Matchers<T, Error, R>): R;
@@ -6,8 +6,8 @@ export interface Matchable<T> {
 }
 
 export interface MatchableEach<T> {
-    match<R>(matchers: Matchers<T, Error, R[]>): R[];
-    expect<R>(error: MapDelegate<Error, R[]>): T[];
+    match<R>(matchers: MatchersMany<T, Error, R>): R[];
+    expect<R>(error: MapDelegate<Error[], R>): T[];
 }
 
 export interface Runable<T> {
