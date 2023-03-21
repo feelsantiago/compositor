@@ -5,7 +5,7 @@ import { WrappedFunction } from "./operations/wrapped-function";
 import { Delegate, MapDelegate, Matchers, MatchersMany, Result } from "./types";
 import { Results } from "./utils/results";
 
-export class CompositorEach<T extends T[]> implements ComposibleEach<T> {
+export class CompositorEach<T> implements ComposibleEach<T> {
     constructor(private readonly delegates: Runable<T>[]) { }
 
     run(): Result<T>[] {
@@ -13,7 +13,7 @@ export class CompositorEach<T extends T[]> implements ComposibleEach<T> {
     }
 
     time(key: string): ComposibleEach<T> {
-        const delegates = this.delegates.map((delegate) => new TimeTracker<T>(key, delegate));
+        const delegates = this.delegates.map((delegate, index) => new TimeTracker<T>(`${key}-${index}`, delegate));
         return new CompositorEach(delegates);
     }
 
@@ -55,8 +55,14 @@ export class Compositor<T> implements Composible<T> {
         return new Compositor(new WrappedFunction<T>(delegate));
     }
 
-    public static all<T, R>(items: T[], delegate: MapDelegate<T, R>): Composible<T> {
-        throw new Error('');
+    public static each<T, R>(items: T[], delegate: MapDelegate<T, R>): ComposibleEach<R> {
+        const delegates = items.map((item) => new WrappedFunction(() => delegate(item)));
+        return new CompositorEach(delegates);
+    }
+
+    public static all<T, R>(items: T[], delegate: MapDelegate<T, R>): Composible<R[]> {
+        const wrapped = new WrappedFunction(() => items.map((item) => delegate(item)));
+        return new Compositor(wrapped);
     }
 
     public run(): Result<T> {
