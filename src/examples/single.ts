@@ -1,7 +1,7 @@
 import { Compositor } from "../compositor";
 import { BaseExample } from "./base";
 
-export class Single extends BaseExample {
+export class SingleExample extends BaseExample {
 
     private times = 3;
 
