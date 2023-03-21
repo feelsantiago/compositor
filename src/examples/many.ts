@@ -62,3 +62,63 @@ export class ManyAllExample extends BaseExample {
         return 'success';
     }
 }
+
+export class ManyEachExample extends BaseExample {
+    constructor() {
+        super('Many Each Example');
+    }
+
+    public run(): void {
+        super.header();
+
+        this.success();
+        this.fail();
+
+        super.footer();
+    }
+
+    public success(): void {
+        super.method('Success');
+
+        const data = [1, 2, 3];
+        const result = Compositor.each(data, (i) => this.generate(i))
+            .retry(3)
+            .time('All')
+            .match({
+                ok: (values) => values,
+                err: (err) => {
+                    console.log(err);
+                }
+            });
+
+        console.log(result);
+    }
+
+    public fail(): void {
+        super.method('Fail');
+
+        const data = [1, 2, 3];
+        const result = Compositor.each(data, (i) => this.generate(i, true))
+            .retry(3)
+            .time('All')
+            .match({
+                ok: (values) => values,
+                err: (err) => {
+                    console.log('Match Error');
+                    console.log(err);
+                }
+            });
+
+        console.log(result);
+    }
+
+    private generate(i: number, fail = false): string {
+        console.log('Called');
+
+        if (i === 2 && fail) {
+            throw new Error('Fail');
+        }
+
+        return 'success';
+    }
+}
