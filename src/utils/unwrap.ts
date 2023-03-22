@@ -26,7 +26,6 @@ export class UnWrapEach<T> {
 
     public safe<R>(matchers: MatchersMany<T, Error, R>): R[] {
         const [success, fails] = new Results(this.results).group();
-
         const successResult = success.length ? matchers.ok(success) : [];
 
         if (fails.length) {
