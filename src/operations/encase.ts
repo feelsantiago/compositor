@@ -15,3 +15,19 @@ export class Encase<T> {
         }
     }
 }
+
+export class EncaseAsync<T> {
+    constructor(private readonly delegate: Delegate<Promise<T>>) { }
+
+    public static run<T>(delegate: Delegate<Promise<T>>): Promise<Result<T>> {
+        return new EncaseAsync(delegate).call();
+    }
+
+    public async call(): Promise<Result<T>> {
+        try {
+            return { ok: true, value: await this.delegate() };
+        } catch (e) {
+            return { ok: false, error: e as Error };
+        }
+    }
+}
