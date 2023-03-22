@@ -63,3 +63,66 @@ export class SingleExample extends BaseExample {
         throw new Error('Simple error');
     }
 }
+
+export class SingleAsyncExample extends BaseExample {
+    private times = 3;
+
+    constructor() {
+        super('Simple Async Example');
+    }
+
+    public async run(): Promise<void> {
+        super.header();
+
+        await this.fullTimeOperation();
+
+        this.times = 3;
+
+        await this.eachTimeOperation();
+
+        super.footer();
+    }
+
+    public async fullTimeOperation(): Promise<void> {
+        super.method('fullTimeOperation');
+
+        const full = await Compositor.doAsync(() => this.generate())
+            .retry(3)
+            .time('Foo Full')
+            .match({
+                ok: (value) => value,
+                err: (error) => {
+                    console.log(error);
+                    return 'fail';
+                },
+            });
+
+        console.log(full);
+    }
+
+    private async eachTimeOperation(): Promise<void> {
+        super.method('eachTimeOperation');
+
+        const each = await Compositor.doAsync(() => this.generate())
+            .time('Foo Each')
+            .retry(3)
+            .match({
+                ok: (value) => value,
+                err: (error) => {
+                    console.log(error);
+                    return 'fail';
+                },
+            });
+
+        console.log(each);
+    }
+
+    private generate(): Promise<string> {
+        if (this.times == 1) {
+            return Promise.resolve('success')
+        }
+
+        this.times -= 1;
+        return Promise.reject(new Error('Simple error'));
+    }
+}

@@ -1,5 +1,5 @@
 import { ManyAllExample, ManyEachExample } from "./examples/many";
-import { SingleExample } from "./examples/single";
+import { SingleAsyncExample, SingleExample } from "./examples/single";
 
 const single = new SingleExample();
 single.run();
@@ -9,3 +9,8 @@ all.run();
 
 const each = new ManyEachExample();
 each.run();
+
+(async () => {
+    const singleAsync = new SingleAsyncExample();
+    await singleAsync.run();
+})();
