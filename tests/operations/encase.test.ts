@@ -41,3 +41,4 @@ describe('Encase Async', () => {
         expect(result.ok).toBeFalsy();
     });
 });
+

@@ -31,3 +31,4 @@ export class EncaseAsync<T> {
         }
     }
 }
+
