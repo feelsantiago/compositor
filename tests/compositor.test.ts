@@ -318,3 +318,84 @@ describe('Compositor each', () => {
     });
 });
 
+describe('Compositor each async', () => {
+    describe('Match', () => {
+        it('Should match success', async () => {
+            const func = jest.fn().mockImplementation((value) => Promise.resolve(value))
+            const compositor = Compositor.eachAsync([1, 2], (item) => func(item));
+
+            const result = await compositor.match({
+                ok: (values) => values,
+                err: (err) => {
+                    fail();
+                }
+            });
+
+            expect(func).toHaveBeenCalledTimes(2);
+            expect(result.length).toBe(2);
+        });
+
+        it('Should match error and result be empty', async () => {
+            const func = jest.fn().mockImplementation(() => Promise.reject(new Error('Mock Error')));
+            const compositor = Compositor.eachAsync([1, 2], (item) => func());
+
+            const result = await compositor.match({
+                ok: (values) => {
+                    fail();
+                },
+                err: (err) => {
+                    expect(err.length).toBe(2);
+                }
+            });
+
+            expect(result.length).toBe(0);
+        });
+
+        it('Should match success and fails', async () => {
+            const func = jest.fn().mockImplementation((i) => {
+                if (i === 2) {
+                    return Promise.reject(new Error('Fail'));
+                }
+
+                return Promise.resolve(i);
+            });
+            const compositor = Compositor.eachAsync([1, 2, 3], (item) => func(item));
+
+            const result = await compositor.match({
+                ok: (items) => items,
+                err: (errors) => {
+                    expect(errors.length).toBe(1);
+                    expect(errors[0].toString()).toEqual(new Error('Fail').toString());
+                }
+            });
+
+            expect(result.length).toBe(2);
+            expect(func).toHaveBeenCalledWith(3);
+        });
+    });
+
+    describe('Expect', () => {
+        it('Should unsafe extract value if all success', async () => {
+            const items = [1, 2];
+            const compositor = Compositor.eachAsync(items, (item) => Promise.resolve(item));
+
+            const results = await compositor.expect((err) => new Error('fail'));
+            expect(results.length).toBe(2);
+        });
+
+        it('Should throw error if one fail', async () => {
+            const items = [1, 2, 3];
+            const compositor = Compositor.eachAsync(items, (item) => {
+                if (item === 2) {
+                    return Promise.reject(new Error('Second error'));
+                }
+
+                return Promise.resolve(item);
+            });
+
+            const mock = async () => compositor.expect((err) => new Error('Fail'));
+            await expect(mock).rejects.toThrowError('Fail');
+        });
+    });
+});
+
