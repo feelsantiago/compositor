@@ -173,6 +173,67 @@ describe('Compositor all', () => {
     });
 });
 
+describe('Compositor all async', () => {
+    describe('Match', () => {
+        it('Should success for all', async () => {
+            const items = [1, 2];
+            const compositor = Compositor.allAsync(items, (item) => Promise.resolve(item));
+            const results = await compositor.match({
+                ok: (items) => items,
+                err: (err) => [],
+            });
+
+            expect(results.length).toBe(2);
+            expect(results).toEqual(items);
+        });
+
+        it('Should match error if one fail', async () => {
+            const items = [1, 2, 3];
+            const compositor = Compositor.allAsync(items, (item) => {
+                if (item === 2) {
+                    return Promise.reject(new Error('Second error'));
+                }
+
+                return Promise.resolve(item);
+            });
+
+            const results = await compositor.match({
+                ok: (items) => items,
+                err: (err) => {
+                    expect(err.toString()).toEqual(new Error('Second error').toString());
+                    return [];
+                }
+            });
+
+            expect(results.length).toBe(0);
+        });
+    });
+
+    describe('Expect', () => {
+        it('Should unsafe extract value if all success', async () => {
+            const items = [1, 2];
+            const compositor = Compositor.allAsync(items, (item) => Promise.resolve(item));
+
+            const results = await compositor.expect((err) => new Error('fail'));
+            expect(results.length).toBe(2);
+        });
+
+        it('Should throw error if one fail', async () => {
+            const items = [1, 2, 3];
+            const compositor = Compositor.allAsync(items, (item) => {
+                if (item === 2) {
+                    return Promise.reject(new Error('Second error'));
+                }
+
+                return Promise.resolve(item);
+            });
+
+            const mock = async () => compositor.expect((err) => new Error('Fail'));
+            await expect(mock).rejects.toThrowError('Fail');
+        });
+    });
+});
+
 describe('Compositor each', () => {
     describe('Match', () => {
         it('Should match success', () => {
@@ -256,5 +317,4 @@ describe('Compositor each', () => {
         });
     });
 });
-
 

@@ -68,6 +68,11 @@ export class Compositor<T> implements Composible<T> {
         return new Compositor(wrapped);
     }
 
+    public static allAsync<T, R>(items: T[], delegate: MapDelegate<T, Promise<R>>): ComposibleAsync<R[]> {
+        const wrapped = new WrappedFunctionAsync(() => Promise.all(items.map((item) => delegate(item))));
+        return new CompositorAsync(wrapped);
+    }
+
     public run(): Result<T> {
         return this.delegate.run();
     }
