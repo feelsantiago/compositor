@@ -3,7 +3,7 @@ import { Retry, RetryAsync } from "./operations/retry";
 import { TimeTracker, TimeTrackerAsync } from "./operations/time-tracker";
 import { WrappedFunction, WrappedFunctionAsync } from "./operations/wrapped-function";
 import { Delegate, MapDelegate, Matchers, MatchersMany, Result } from "./types";
-import { Results } from "./utils/results";
+import { UnWrap } from "./utils/unwrap";
 
 export class CompositorEach<T> implements ComposibleEach<T> {
     constructor(private readonly delegates: Runable<T>[]) { }
@@ -24,26 +24,12 @@ export class CompositorEach<T> implements ComposibleEach<T> {
 
     public match<R>(matchers: MatchersMany<T, Error, R>): R[] {
         const results = this.run();
-        const [success, fails] = new Results(results).group();
-
-        const successResult = success.length ? matchers.ok(success) : [];
-
-        if (fails.length) {
-            matchers.err(fails);
-        }
-
-        return successResult;
+        return UnWrap.each(results).safe(matchers);
     }
 
     public expect<R>(error: MapDelegate<Error[], R>): T[] {
         const results = this.run();
-        const [success, fails] = new Results(results).group();
-
-        if (fails.length) {
-            throw error(fails);
-        }
-
-        return success;
+        return UnWrap.each(results).unsafe(error);
     }
 }
 
@@ -74,26 +60,12 @@ export class CompositorEachAsync<T> implements ComposibleEachAsync<T> {
 
     public async match<R>(matchers: MatchersMany<T, Error, R>): Promise<R[]> {
         const results = await this.run();
-        const [success, fails] = new Results(results).group();
-
-        const successResult = success.length ? matchers.ok(success) : [];
-
-        if (fails.length) {
-            matchers.err(fails);
-        }
-
-        return successResult;
+        return UnWrap.each(results).safe(matchers);
     }
 
     public async expect<R>(error: MapDelegate<Error[], R>): Promise<T[]> {
         const results = await this.run();
-        const [success, fails] = new Results(results).group();
-
-        if (fails.length) {
-            throw error(fails);
-        }
-
-        return success;
+        return UnWrap.each(results).unsafe(error);
     }
 }
 
@@ -142,17 +114,12 @@ export class Compositor<T> implements Composible<T> {
 
     public match<R>(matchers: Matchers<T, Error, R>): R {
         const result = this.run();
-        return result.ok === true ? matchers.ok(result.value) : matchers.err(result.error);
+        return new UnWrap(result).safe(matchers);
     }
 
     public expect<R>(error: MapDelegate<Error, R>): T {
         const result = this.run();
-
-        if (result.ok) {
-            return result.value;
-        }
-
-        throw error(result.error);
+        return new UnWrap(result).unsafe(error);
     }
 }
 
@@ -173,17 +140,12 @@ export class CompositorAsync<T> implements ComposibleAsync<T> {
 
     public async match<R>(matchers: Matchers<T, Error, R>): Promise<R> {
         const result = await this.run();
-        return result.ok === true ? matchers.ok(result.value) : matchers.err(result.error);
+        return new UnWrap(result).safe(matchers);
     }
 
     public async expect<R>(error: MapDelegate<Error, R>): Promise<T> {
         const result = await this.run();
-
-        if (result.ok) {
-            return result.value;
-        }
-
-        throw error(result.error);
+        return new UnWrap(result).unsafe(error);
     }
 }
 
