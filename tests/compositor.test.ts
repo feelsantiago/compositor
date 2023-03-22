@@ -58,6 +58,60 @@ describe('Compositor', () => {
     });
 });
 
+describe('Compositor Async', () => {
+    describe('Match', () => {
+        it('Should match ok', async () => {
+            const compositor = Compositor.doAsync(() => Promise.resolve('success'));
+            const result = await compositor.match({
+                ok: (value) => value,
+                err: () => 'Error',
+            });
+
+            expect(result).toEqual('success');
+        });
+
+        it('Should match error', async () => {
+            const compositor = Compositor.doAsync(() => Promise.reject(new Error('Mock Error')));
+            const result = await compositor.match({
+                ok: (value) => value,
+                err: (err) => err.toString(),
+            });
+
+            expect(result).toEqual(new Error('Mock Error').toString());
+        });
+    });
+
+    describe('Expect', () => {
+        it('Should throw error if operation fail', async () => {
+            const operation = jest.fn().mockImplementation(() => Promise.reject('Test Error'));
+
+            const compositor = Compositor.doAsync(operation);
+            const mock = async () => compositor.expect(() => new Error('Test Error'));
+
+            await expect(mock).rejects.toThrowError('Test Error');
+        });
+
+        it('Should unsafe extract value if operation is success', async () => {
+            const operation = jest.fn().mockImplementation(() => Promise.resolve('success'))
+
+            const compositor = Compositor.doAsync(operation);
+            const result = await compositor.expect(() => new Error('Fail'));
+
+            expect(result).toBeDefined();
+            expect(result).toEqual('success');
+        });
+
+        it('Should rethrow error', async () => {
+            const operation = jest.fn().mockImplementation(() => Promise.reject(new Error('Mock Error')));
+
+            const compositor = Compositor.doAsync(operation);
+            const mock = async () => compositor.expect((err) => err);
+
+            await expect(mock).rejects.toThrowError('Mock Error');
+        });
+    });
+});
+
 describe('Compositor all', () => {
     describe('Match', () => {
         it('Should success for all', () => {

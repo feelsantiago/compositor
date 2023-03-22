@@ -1,7 +1,7 @@
-import { Composible, ComposibleEach, Runable, } from "./operations/operations";
-import { Retry } from "./operations/retry";
-import { TimeTracker } from "./operations/time-tracker";
-import { WrappedFunction } from "./operations/wrapped-function";
+import { Composible, ComposibleAsync, ComposibleEach, Runable, RunableAsync, } from "./operations/operations";
+import { Retry, RetryAsync } from "./operations/retry";
+import { TimeTracker, TimeTrackerAsync } from "./operations/time-tracker";
+import { WrappedFunction, WrappedFunctionAsync } from "./operations/wrapped-function";
 import { Delegate, MapDelegate, Matchers, MatchersMany, Result } from "./types";
 import { Results } from "./utils/results";
 
@@ -47,12 +47,15 @@ export class CompositorEach<T> implements ComposibleEach<T> {
     }
 }
 
-
 export class Compositor<T> implements Composible<T> {
     constructor(private readonly delegate: Runable<T>) { }
 
     public static do<T>(delegate: Delegate<T>): Composible<T> {
         return new Compositor(new WrappedFunction<T>(delegate));
+    }
+
+    public static doAsync<T>(delegate: Delegate<Promise<T>>): ComposibleAsync<T> {
+        return new CompositorAsync(new WrappedFunctionAsync<T>(delegate));
     }
 
     public static each<T, R>(items: T[], delegate: MapDelegate<T, R>): ComposibleEach<R> {
@@ -69,11 +72,11 @@ export class Compositor<T> implements Composible<T> {
         return this.delegate.run();
     }
 
-    public time(key: string): Compositor<T> {
+    public time(key: string): Composible<T> {
         return new Compositor(new TimeTracker(key, this.delegate));
     }
 
-    public retry(times: number): Compositor<T> {
+    public retry(times: number): Composible<T> {
         return new Compositor(new Retry(times, this.delegate));
     }
 
@@ -92,3 +95,35 @@ export class Compositor<T> implements Composible<T> {
         throw error(result.error);
     }
 }
+
+export class CompositorAsync<T> implements ComposibleAsync<T> {
+    constructor(private readonly delegate: RunableAsync<T>) { }
+
+    public run(): Promise<Result<T>> {
+        return this.delegate.run();
+    }
+
+    public time(key: string): ComposibleAsync<T> {
+        return new CompositorAsync(new TimeTrackerAsync(key, this.delegate));
+    }
+
+    public retry(times: number): ComposibleAsync<T> {
+        return new CompositorAsync(new RetryAsync(times, this.delegate));
+    }
+
+    public async match<R>(matchers: Matchers<T, Error, R>): Promise<R> {
+        const result = await this.run();
+        return result.ok === true ? matchers.ok(result.value) : matchers.err(result.error);
+    }
+
+    public async expect<R>(error: MapDelegate<Error, R>): Promise<T> {
+        const result = await this.run();
+
+        if (result.ok) {
+            return result.value;
+        }
+
+        throw error(result.error);
+    }
+}
+
