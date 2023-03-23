@@ -105,7 +105,7 @@ export class SingleAsyncExample extends BaseExample {
 
         const each = await Compositor.doAsync(() => this.generate())
             .time('Foo Each')
-            .retry(3)
+            .retryTime(3)
             .match({
                 ok: (value) => value,
                 err: (error) => {
