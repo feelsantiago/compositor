@@ -12,35 +12,11 @@ describe('Retry Time', () => {
         jest.clearAllMocks();
     });
 
-    it('Should transform factor seconds to miliseconds', () => {
-        const func = new WrappedFunctionAsync(async () => 'success');
-        const retry = new RetryTime<string>(3, func, 2);
-        expect(retry['seconds']()).toBe(2000);
-    });
-
-    it('Should calculate next time schedule for base case', () => {
-        const func = new WrappedFunctionAsync(async () => 'success');
-        const retry = new RetryTime<string>(1, func);
-
-        expect(retry['time'](1)).toBe(0);
-        expect(retry['time'](0)).toBe(1000);
-    });
-
-    it('Should calculate next time schedule', () => {
-        const func = new WrappedFunctionAsync(async () => 'success');
-        const retry = new RetryTime<string>(3, func);
-
-        expect(retry['time'](3)).toBe(0);
-        expect(retry['time'](2)).toBe(1000);
-        expect(retry['time'](1)).toBe(2000);
-        expect(retry['time'](0)).toBe(3000);
-    });
-
     it('Should schedule a new run if delegate fails', async () => {
         const func = new WrappedFunctionAsync(() => Promise.reject(new Error('Test')));
-        const retry = new RetryTime<string>(1, func);
+        const retry = new RetryTime<string>(2, func);
 
-        retry['schedule'](1, (result) => {
+        retry['schedule'](2, 0, (result) => {
             expect(result.ok).toBe(false);
         });
 
@@ -50,14 +26,19 @@ describe('Retry Time', () => {
         await jest.runOnlyPendingTimersAsync();
 
         expect(setTimeout).toHaveBeenCalledTimes(2);
-        expect(setTimeout).toHaveBeenLastCalledWith(expect.any(Function), 1000);
+        expect(setTimeout).toHaveBeenLastCalledWith(expect.any(Function), 2000);
+
+        await jest.runOnlyPendingTimersAsync();
+
+        expect(setTimeout).toHaveBeenCalledTimes(3);
+        expect(setTimeout).toHaveBeenLastCalledWith(expect.any(Function), 4000);
     });
 
     it('Should not schedule a new run if delegate success', async () => {
         const func = new WrappedFunctionAsync(() => Promise.resolve('success'));
         const retry = new RetryTime<string>(1, func);
 
-        retry['schedule'](1, (result) => {
+        retry['schedule'](1, 0, (result) => {
             expect(result.ok).toBe(true);
         });
 
@@ -77,7 +58,7 @@ describe('Retry Time', () => {
 
         expect(result.ok).toBeFalsy();
         expect(setTimeout).toHaveBeenCalledTimes(2);
-        expect(setTimeout).toHaveBeenLastCalledWith(expect.any(Function), 1000);
+        expect(setTimeout).toHaveBeenLastCalledWith(expect.any(Function), 2000);
     });
 
     it('Should not retry operations if success', async () => {
