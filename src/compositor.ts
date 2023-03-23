@@ -1,5 +1,6 @@
 import { Composible, ComposibleAsync, ComposibleEach, ComposibleEachAsync, Runable, RunableAsync, } from "./operations/operations";
 import { Retry, RetryAsync } from "./operations/retry";
+import { RetryTime } from "./operations/retry-time";
 import { TimeTracker, TimeTrackerAsync } from "./operations/time-tracker";
 import { WrappedFunction, WrappedFunctionAsync } from "./operations/wrapped-function";
 import { Delegate, MapDelegate, Matchers, MatchersMany, Result } from "./types";
@@ -55,6 +56,11 @@ export class CompositorEachAsync<T> implements ComposibleEachAsync<T> {
 
     public retry(times: number): ComposibleEachAsync<T> {
         const delegates = this.delegates.map((delegate) => new RetryAsync<T>(times, delegate));
+        return new CompositorEachAsync(delegates);
+    }
+
+    public retryTime(times: number, seconds?: number | undefined): ComposibleAsync<T> {
+        const delegates = this.delegates.map((delegate) => new RetryTime<T>(times, delegate, seconds));
         return new CompositorEachAsync(delegates);
     }
 
@@ -136,6 +142,10 @@ export class CompositorAsync<T> implements ComposibleAsync<T> {
 
     public retry(times: number): ComposibleAsync<T> {
         return new CompositorAsync(new RetryAsync(times, this.delegate));
+    }
+
+    public retryTime(times: number, seconds?: number): ComposibleAsync<T> {
+        return new CompositorAsync(new RetryTime(times, this.delegate, seconds));
     }
 
     public async match<R>(matchers: Matchers<T, Error, R>): Promise<R> {
