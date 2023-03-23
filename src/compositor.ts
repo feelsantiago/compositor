@@ -59,7 +59,7 @@ export class CompositorEachAsync<T> implements ComposibleEachAsync<T> {
         return new CompositorEachAsync(delegates);
     }
 
-    public retryTime(times: number, seconds?: number | undefined): ComposibleAsync<T> {
+    public retryTime(times: number, seconds?: number | undefined): ComposibleEachAsync<T> {
         const delegates = this.delegates.map((delegate) => new RetryTime<T>(times, delegate, seconds));
         return new CompositorEachAsync(delegates);
     }

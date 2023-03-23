@@ -63,11 +63,11 @@ export interface RetriableAsync<T> {
 
 export interface RetriableEach<T> {
     retry(times: number): ComposibleEach<T>;
-    retryTime(times: number, seconds?: number): ComposibleAsync<T>;
 }
 
 export interface RetriableEachAsync<T> {
     retry(times: number): ComposibleEachAsync<T>;
+    retryTime(times: number, seconds?: number): ComposibleEachAsync<T>;
 }
 
 export interface Composible<T> extends Runable<T>, Matchable<T>, TimeTrackeable<T>, Retriable<T> {
