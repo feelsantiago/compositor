@@ -1,4 +1,4 @@
-import { MapDelegate, Matchers, MatchersMany, Result } from "../types";
+import { MapDelegate, Matchers, MatchersMany, Result } from '../types';
 
 export interface Matchable<T> {
     match<R>(matchers: Matchers<T, Error, R>): R;
@@ -20,62 +20,68 @@ export interface MatchableEachAsync<T> {
     expect<R>(error: MapDelegate<Error[], R>): Promise<T[]>;
 }
 
-export interface Runable<T> {
+export interface Runnable<T> {
     run(): Result<T>;
 }
 
-export interface RunableAsync<T> {
+export interface RunnableAsync<T> {
     run(): Promise<Result<T>>;
 }
 
-export interface RunableEach<T> {
+export interface RunnableEach<T> {
     run(): Result<T>[];
 }
 
-export interface RunableEachAsync<T> {
+export interface RunnableEachAsync<T> {
     run(): Promise<Result<T>[]>;
 }
 
 export interface TimeTrackeable<T> {
-    time(key: string): Composible<T>;
+    time(key: string): Composable<T>;
 }
 
 export interface TimeTrackeableAsync<T> {
-    time(key: string): ComposibleAsync<T>;
+    time(key: string): ComposableAsync<T>;
 }
 
 export interface TimeTrackeableEach<T> {
-    time(key: string): ComposibleEach<T>;
+    time(key: string): ComposableEach<T>;
 }
 
 export interface TimeTrackeableEachAsync<T> {
-    time(key: string): ComposibleEachAsync<T>;
+    time(key: string): ComposableEachAsync<T>;
 }
 
 export interface Retriable<T> {
-    retry(times: number): Composible<T>;
+    retry(times: number): Composable<T>;
 }
 
 export interface RetriableAsync<T> {
-    retry(times: number): ComposibleAsync<T>;
-    retryTime(times: number, seconds?: number): ComposibleAsync<T>;
+    retry(times: number): ComposableAsync<T>;
+    retryTime(times: number, seconds?: number): ComposableAsync<T>;
 }
 
 export interface RetriableEach<T> {
-    retry(times: number): ComposibleEach<T>;
+    retry(times: number): ComposableEach<T>;
 }
 
 export interface RetriableEachAsync<T> {
-    retry(times: number): ComposibleEachAsync<T>;
-    retryTime(times: number, seconds?: number): ComposibleEachAsync<T>;
+    retry(times: number): ComposableEachAsync<T>;
+    retryTime(times: number, seconds?: number): ComposableEachAsync<T>;
 }
 
-export interface Composible<T> extends Runable<T>, Matchable<T>, TimeTrackeable<T>, Retriable<T> {
-}
+export interface Composable<T> extends Runnable<T>, Matchable<T>, TimeTrackeable<T>, Retriable<T> {}
 
-export interface ComposibleAsync<T> extends RunableAsync<T>, MatchableAsync<T>, TimeTrackeableAsync<T>, RetriableAsync<T> { }
+export interface ComposableAsync<T>
+    extends RunnableAsync<T>,
+        MatchableAsync<T>,
+        TimeTrackeableAsync<T>,
+        RetriableAsync<T> {}
 
-export interface ComposibleEach<T> extends RunableEach<T>, MatchableEach<T>, TimeTrackeableEach<T>, RetriableEach<T> { }
+export interface ComposableEach<T> extends RunnableEach<T>, MatchableEach<T>, TimeTrackeableEach<T>, RetriableEach<T> {}
 
-export interface ComposibleEachAsync<T> extends RunableEachAsync<T>, MatchableEachAsync<T>, TimeTrackeableEachAsync<T>, RetriableEachAsync<T> { }
-
+export interface ComposableEachAsync<T>
+    extends RunnableEachAsync<T>,
+        MatchableEachAsync<T>,
+        TimeTrackeableEachAsync<T>,
+        RetriableEachAsync<T> {}

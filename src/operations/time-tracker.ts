@@ -1,12 +1,12 @@
-import { OutputTimeStream, Result } from "../types";
-import { Runable, RunableAsync } from "./operations";
+import { OutputTimeStream, Result } from '../types';
+import { Runnable, RunnableAsync } from './operations';
 
-export class TimeTracker<T> implements Runable<T> {
+export class TimeTracker<T> implements Runnable<T> {
     constructor(
         private readonly key: string,
-        private readonly delegate: Runable<T>,
+        private readonly delegate: Runnable<T>,
         private output: OutputTimeStream = { time: console.time, timeEnd: console.timeEnd }
-    ) { }
+    ) {}
 
     public run(): Result<T> {
         this.output.time(this.key);
@@ -17,12 +17,12 @@ export class TimeTracker<T> implements Runable<T> {
     }
 }
 
-export class TimeTrackerAsync<T> implements RunableAsync<T> {
+export class TimeTrackerAsync<T> implements RunnableAsync<T> {
     constructor(
         private readonly key: string,
-        private readonly delegate: RunableAsync<T>,
+        private readonly delegate: RunnableAsync<T>,
         private output: OutputTimeStream = { time: console.time, timeEnd: console.timeEnd }
-    ) { }
+    ) {}
 
     public async run(): Promise<Result<T>> {
         this.output.time(this.key);
@@ -32,4 +32,3 @@ export class TimeTrackerAsync<T> implements RunableAsync<T> {
         return result;
     }
 }
-

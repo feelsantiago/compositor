@@ -1,8 +1,8 @@
-import { Result } from "../types";
-import { Runable, RunableAsync } from "./operations";
+import { Result } from '../types';
+import { Runnable, RunnableAsync } from './operations';
 
-export class Retry<T> implements Runable<T> {
-    constructor(private readonly times: number, private readonly delegate: Runable<T>) { }
+export class Retry<T> implements Runnable<T> {
+    constructor(private readonly times: number, private readonly delegate: Runnable<T>) {}
 
     public run(): Result<T> {
         let retry = this.times;
@@ -23,8 +23,8 @@ export class Retry<T> implements Runable<T> {
     }
 }
 
-export class RetryAsync<T> implements RunableAsync<T> {
-    constructor(private readonly times: number, private readonly delegate: RunableAsync<T>) { }
+export class RetryAsync<T> implements RunnableAsync<T> {
+    constructor(private readonly times: number, private readonly delegate: RunnableAsync<T>) {}
 
     public async run(): Promise<Result<T>> {
         let retry = this.times;
@@ -44,4 +44,3 @@ export class RetryAsync<T> implements RunableAsync<T> {
         return fail;
     }
 }
-

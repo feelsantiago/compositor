@@ -1,8 +1,12 @@
 {
     "name": "compositor",
     "version": "1.0.0",
-    "description": "",
-    "main": "index.js",
+    "description": "Simple lib to wrap functions for better error handler and extend behavior",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "files": [
+        "/dist"
+    ],
     "scripts": {
         "build": "tsc",
         "start": "ts-node src/main.ts",

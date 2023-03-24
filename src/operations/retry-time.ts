@@ -1,12 +1,12 @@
-import { Result } from "../types";
-import { RunableAsync } from "./operations";
+import { Result } from '../types';
+import { RunnableAsync } from './operations';
 
-export class RetryTime<T> implements RunableAsync<T> {
+export class RetryTime<T> implements RunnableAsync<T> {
     constructor(
         private readonly times: number,
-        private readonly delegate: RunableAsync<T>,
-        private readonly seconds: number = 1,
-    ) { }
+        private readonly delegate: RunnableAsync<T>,
+        private readonly seconds: number = 1
+    ) {}
 
     public run(): Promise<Result<T>> {
         return new Promise((resolve, _) => {
@@ -25,4 +25,3 @@ export class RetryTime<T> implements RunableAsync<T> {
         }, time * 1000);
     }
 }
-
